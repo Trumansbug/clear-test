@@ -36,6 +36,9 @@ export default new Vuex.Store({
     },
     clearUser({ commit }) {
       commit('CLEAR_USER')
+    },
+    logout({ commit }) {
+      commit('CLEAR_USER')
     }
   },
   getters: {

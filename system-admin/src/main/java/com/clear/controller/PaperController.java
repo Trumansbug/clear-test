@@ -44,7 +44,7 @@ public class PaperController {
     public R<Paper> add(@RequestBody Paper paper) {
         paper.setCreatorId(userService.getCurrentUser().getId());
         paper.setStatus(0); // 默认未发布
-        paperService.save(paper);
+        paperService.savePaper(paper);
         return R.success(paper);
     }
 

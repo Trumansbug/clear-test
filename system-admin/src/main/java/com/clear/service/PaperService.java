@@ -14,4 +14,6 @@ public interface PaperService extends IService<Paper> {
     void checkPaperCanEdit(Long id);
     
     void updateTotalScore(Long id);
+
+    void savePaper(Paper paper);
 } 

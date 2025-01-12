@@ -4,7 +4,7 @@
     <div class="sidebar-container">
       <div class="logo">
         <!-- <img src="../assets/logo.png" alt="Logo"> -->
-        <span>智能测试系统</span>
+        <span>雾晴测试</span>
       </div>
       <el-menu
         :default-active="$route.path"
@@ -17,11 +17,23 @@
           <i class="el-icon-s-home"></i>
           <span slot="title">首页</span>
         </el-menu-item>
-        <el-menu-item index="/paper/list">
-          <i class="el-icon-document"></i>
-          <span slot="title">试卷管理</span>
-        </el-menu-item>
-        <el-submenu index="/" v-if="hasRole('ROLE_ADMIN')">
+        <el-submenu index="1">
+          <template slot="title">
+            <i class="el-icon-notebook-2"></i>
+            <span>测试管理</span>
+          </template>
+          <el-menu-item-group>
+            <el-menu-item index="/paper/list">
+              <i class="el-icon-document"></i>
+              <span slot="title">试卷管理</span>
+            </el-menu-item>
+            <el-menu-item index="/share/list">
+              <i class="el-icon-share"></i>
+              <span slot="title">分享管理</span>
+            </el-menu-item>
+          </el-menu-item-group>
+        </el-submenu>
+        <el-submenu index="2" v-if="hasRole('ROLE_ADMIN')">
           <template slot="title">
             <i class="el-icon-setting"></i>
             <span>权限管理</span>

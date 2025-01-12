@@ -1,4 +1,4 @@
-# 智力测试问卷系统
+# 雾晴测试
 
 这是一个基于 Vue + Spring Boot 的智力测试问卷系统。
 
@@ -6,19 +6,19 @@
 
 ```
 .
-├── backend/          # 后端项目
-│   ├── src/         # 源代码
-│   └── pom.xml      # Maven 配置文件
-└── frontend/        # 前端项目
-    ├── src/         # 源代码
-    └── package.json # npm 配置文件
+├── system-admin/          # 后端项目
+│   ├── src/               # 源代码
+│   └── pom.xml            # Maven 配置文件
+└── system-ui/             # 前端项目
+    ├── src/               # 源代码
+    └── package.json       # npm 配置文件
 ```
 
 ## 技术栈
 
 ### 前端
-- Vue 3
-- Element Plus
+- Vue 2
+- Element UI
 - Vue Router
 - Vuex
 - Axios
@@ -63,18 +63,18 @@ CREATE DATABASE iq_test;
 ```
 
 2. 修改数据库配置：
-编辑 `backend/src/main/resources/application.yml` 文件中的数据库连接信息。
+编辑 `system-admin/src/main/resources/application.yml` 文件中的数据库连接信息。
 
 3. 运行后端服务：
 ```bash
-cd backend
+cd system-admin
 mvn spring-boot:run
 ```
 
 ### 前端
 1. 安装依赖：
 ```bash
-cd frontend
+cd system-ui
 npm install
 ```
 

@@ -1,5 +1,6 @@
 package com.clear.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -9,6 +10,7 @@ import com.clear.mapper.QuestionMapper;
 import com.clear.service.PaperService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PaperServiceImpl extends ServiceImpl<PaperMapper, Paper> implements PaperService {
@@ -58,4 +60,20 @@ public class PaperServiceImpl extends ServiceImpl<PaperMapper, Paper> implements
         paper.setTotalScore(totalScore != null ? totalScore : 0);
         updateById(paper);
     }
-} 
+
+    @Override
+    @Transactional
+    public void savePaper(Paper paper) {
+        // 检查是否可以保存
+        checkPaperCanSave(paper);
+
+        super.save(paper);
+    }
+
+    private void checkPaperCanSave(Paper paper) {
+        Long count = baseMapper.selectCount(new QueryWrapper<Paper>().eq(paper.getTitle() != null, "title", paper.getTitle()));
+        if (count != null && count > 0) {
+            throw new RuntimeException("试卷标题【" + paper.getTitle() + "】重复");
+        }
+    }
+}

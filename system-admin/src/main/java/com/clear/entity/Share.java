@@ -6,53 +6,57 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-@TableName("paper")
-public class Paper {
+@TableName("share")
+public class Share {
     /**
-     * 唯一标识ID
+     * 唯一ID
      */
     @TableId(type = IdType.AUTO)
     private Long id;
     /**
-     * 试卷标题
+     * 分享码
      */
-    private String title;
+    private String code;
     /**
-     * 试卷描述
+     * 试卷ID
      */
-    private String description;
+    private Long paperId;
     /**
-     * 试卷状态
-     * 0: 未发布, 1: 已发布
+     * 状态
+     * 0:禁用 1:启用
      */
     private Integer status;
     /**
-     * 试卷总分
+     * 备注
      */
-    private Integer totalScore;
+    private String remark;
     /**
      * 创建时间
      */
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
     /**
-     * 更新时间
+     * 过期时间
      */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Date updateTime;
+    @TableField(fill = FieldFill.INSERT)
+    private Date expireTime;
     /**
-     * 删除标志
-     * 0: 未删除, 1: 已删除
-     */
-    @TableLogic
-    private Integer deleted;
-    /**
-     * 创建人ID
+     * 创建人
      */
     private Long creatorId;
+    /**
+     * 关联试卷标题
+     */
+    @TableField(exist = false)
+    private String paperTitle;
     /**
      * 创建者
      */
     @TableField(exist = false)
     private String username;
-} 
+    /**
+     * 删除标志
+     */
+    @TableLogic
+    private Integer deleted;
+}

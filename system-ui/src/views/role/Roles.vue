@@ -1,5 +1,20 @@
 <template>
   <div class="roles-container">
+    <div class="search-bar">
+      <el-form :inline="true" :model="searchForm">
+        <el-form-item label="角色名称">
+          <el-input v-model="searchForm.name" placeholder="请输入用户名" clearable @clear="handleSearch" />
+        </el-form-item>
+        <el-form-item label="角色编码">
+          <el-input v-model="searchForm.code" placeholder="请输入昵称" clearable @clear="handleSearch" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="handleSearch">搜索</el-button>
+          <el-button @click="resetSearch">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+
     <div class="toolbar">
       <el-button type="primary" @click="handleAdd">新增角色</el-button>
     </div>
@@ -8,7 +23,7 @@
       <el-table-column prop="name" label="角色名称" />
       <el-table-column prop="code" label="角色编码" />
       <el-table-column prop="description" label="描述" show-overflow-tooltip />
-      <el-table-column prop="status" label="状态" width="100" align="center">
+      <el-table-column prop="status" label="状态" align="center">
         <template #default="scope">
           <el-tag :type="scope.row.status === 1 ? 'success' : 'danger'">
             {{ scope.row.status === 1 ? '启用' : '禁用' }}
@@ -16,7 +31,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="createTime" label="创建时间" width="180" />
-      <el-table-column label="操作" width="250" fixed="right">
+      <el-table-column label="操作" fixed="right">
         <template #default="scope">
           <el-button type="primary" link @click="handleEdit(scope.row)">编辑</el-button>
           <el-button type="primary" link @click="handlePermissions(scope.row)">权限设置</el-button>
@@ -110,189 +125,160 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted } from 'vue'
 import { Message, MessageBox } from 'element-ui'
 import { getRoleList, createRole, updateRole, deleteRole, getRolePermissions, updateRolePermissions } from '../../api/role'
 import { getPermissionTree } from '../../api/permission'
 
 export default {
   name: 'Roles',
-  setup() {
-    const loading = ref(false)
-    const roleList = ref([])
-    const total = ref(0)
-    const queryParams = reactive({
-      current: 1,
-      size: 10
-    })
-
-    // 角色表单相关
-    const dialogVisible = ref(false)
-    const dialogType = ref('add')
-    const roleForm = ref({})
-    const roleFormRef = ref(null)
-    const rules = {
-      name: [
-        { required: true, message: '请输入角色名称', trigger: 'blur' }
-      ],
-      code: [
-        { required: true, message: '请输入角色编码', trigger: 'blur' },
-        { pattern: /^ROLE_[A-Z_]+$/, message: '角色编码必须以ROLE_开头，且只能包含大写字母和下划线', trigger: 'blur' }
-      ],
-      status: [
-        { required: true, message: '请选择状态', trigger: 'change' }
-      ]
-    }
-
-    // 权限相关
-    const permissionDialogVisible = ref(false)
-    const currentRole = ref(null)
-    const permissionTree = ref([])
-    const selectedPermissions = ref([])
-    const permissionTreeRef = ref(null)
-    const defaultProps = {
-      children: 'children',
-      label: 'name'
-    }
-
-    // 获取角色列表
-    const getList = async () => {
-      loading.value = true
-      try {
-        const res = await getRoleList(queryParams)
-        roleList.value = res.data.records
-        total.value = res.data.total
-      } finally {
-        loading.value = false
+  data() {
+    return {
+      loading: false,
+      roleList: [],
+      total: 0,
+      queryParams: {
+        current: 1,
+        size: 10
+      },
+      dialogVisible: false,
+      dialogType: 'add',
+      roleForm: {},
+      rules: {
+        name: [
+          { required: true, message: '请输入角色名称', trigger: 'blur' }
+        ],
+        code: [
+          { required: true, message: '请输入角色编码', trigger: 'blur' },
+          { pattern: /^ROLE_[A-Z_]+$/, message: '角色编码必须以ROLE_开头，且只能包含大写字母和下划线', trigger: 'blur' }
+        ],
+        status: [
+          { required: true, message: '请选择状态', trigger: 'change' }
+        ]
+      },
+      permissionDialogVisible: false,
+      currentRole: null,
+      permissionTree: [],
+      selectedPermissions: [],
+      defaultProps: {
+        children: 'children',
+        label: 'name'
+      },
+      searchForm: {
+        name: '',
+        code: ''
       }
     }
-
-    // 获取权限树
-    const getPermissionTreeData = async () => {
+  },
+  methods: {
+    async getList() {
+      this.loading = true
+      try {
+        const params = {
+          ...this.queryParams,
+          ...this.searchForm
+        }
+        const res = await getRoleList(params)
+        this.roleList = res.data.records
+        this.total = res.data.total
+      } finally {
+        this.loading = false
+      }
+    },
+    async getPermissionTreeData() {
       try {
         const res = await getPermissionTree()
-        permissionTree.value = res.data
+        this.permissionTree = res.data
       } catch (error) {
         console.error('获取权限树失败:', error)
       }
-    }
-
-    // 新增角色
-    const handleAdd = () => {
-      dialogType.value = 'add'
-      roleForm.value = {
+    },
+    resetSearch() {
+      this.searchForm.name = ''
+      this.searchForm.code = ''
+      this.handleSearch()
+    },
+    handleSearch() {
+      this.queryParams.current = 1
+      this.getList()
+    },
+    handleAdd() {
+      this.dialogType = 'add'
+      this.roleForm = {
         status: 1
       }
-      dialogVisible.value = true
-    }
-
-    // 编辑角色
-    const handleEdit = (row) => {
-      dialogType.value = 'edit'
-      roleForm.value = { ...row }
-      dialogVisible.value = true
-    }
-
-    // 删除角色
-    const handleDelete = (row) => {
+      this.dialogVisible = true
+    },
+    handleEdit(row) {
+      this.dialogType = 'edit'
+      this.roleForm = { ...row }
+      this.dialogVisible = true
+    },
+    handleDelete(row) {
       MessageBox.confirm('确认删除该角色吗？', '提示', {
         type: 'warning'
       }).then(async () => {
         try {
           await deleteRole(row.id)
           Message.success('删除成功')
-          getList()
+          this.getList()
         } catch (error) {
           console.error('删除角色失败:', error)
         }
       })
-    }
-
-    // 权限设置
-    const handlePermissions = async (row) => {
-      currentRole.value = row
+    },
+    async handlePermissions(row) {
+      this.currentRole = row
       try {
         const res = await getRolePermissions(row.id)
-        selectedPermissions.value = res.data.map(p => p.id)
-        permissionDialogVisible.value = true
+        this.selectedPermissions = res.data.map(p => p.id)
+        this.permissionDialogVisible = true
       } catch (error) {
         console.error('获取角色权限失败:', error)
       }
-    }
-
-    // 提交角色表单
-    const handleSubmit = async () => {
-      await roleFormRef.value.validate()
-      try {
-        if (dialogType.value === 'add') {
-          await createRole(roleForm.value)
-          Message.success('创建成功')
-        } else {
-          await updateRole(roleForm.value.id, roleForm.value)
-          Message.success('更新成功')
+    },
+    async handleSubmit() {
+      this.$refs.roleForm.validate(async (valid) => {
+        if (valid) {
+          try {
+            if (this.dialogType === 'add') {
+              await createRole(this.roleForm)
+              Message.success('创建成功')
+            } else {
+              await updateRole(this.roleForm.id, this.roleForm)
+              Message.success('更新成功')
+            }
+            this.dialogVisible = false
+            this.getList()
+          } catch (error) {
+            console.error('保存角色失败:', error)
+          }
         }
-        dialogVisible.value = false
-        getList()
-      } catch (error) {
-        console.error('保存角色失败:', error)
-      }
-    }
-
-    // 提交权限设置
-    const handlePermissionSubmit = async () => {
-      const checkedKeys = permissionTreeRef.value.getCheckedKeys()
-      const halfCheckedKeys = permissionTreeRef.value.getHalfCheckedKeys()
+      })
+    },
+    async handlePermissionSubmit() {
+      const checkedKeys = this.$refs.permissionTree.getCheckedKeys()
+      const halfCheckedKeys = this.$refs.permissionTree.getHalfCheckedKeys()
       const permissionIds = [...checkedKeys, ...halfCheckedKeys]
       try {
-        await updateRolePermissions(currentRole.value.id, permissionIds)
+        await updateRolePermissions(this.currentRole.id, permissionIds)
         Message.success('权限设置成功')
-        permissionDialogVisible.value = false
+        this.permissionDialogVisible = false
       } catch (error) {
         console.error('设置权限失败:', error)
       }
+    },
+    handleSizeChange(val) {
+      this.queryParams.size = val
+      this.getList()
+    },
+    handleCurrentChange(val) {
+      this.queryParams.current = val
+      this.getList()
     }
-
-    // 分页相关
-    const handleSizeChange = (val) => {
-      queryParams.size = val
-      getList()
-    }
-
-    const handleCurrentChange = (val) => {
-      queryParams.current = val
-      getList()
-    }
-
-    onMounted(() => {
-      getList()
-      getPermissionTreeData()
-    })
-
-    return {
-      loading,
-      roleList,
-      total,
-      queryParams,
-      dialogVisible,
-      dialogType,
-      roleForm,
-      roleFormRef,
-      rules,
-      permissionDialogVisible,
-      currentRole,
-      permissionTree,
-      selectedPermissions,
-      permissionTreeRef,
-      defaultProps,
-      handleAdd,
-      handleEdit,
-      handleDelete,
-      handlePermissions,
-      handleSubmit,
-      handlePermissionSubmit,
-      handleSizeChange,
-      handleCurrentChange
-    }
+  },
+  mounted() {
+    this.getList()
+    this.getPermissionTreeData()
   }
 }
 </script>
@@ -300,6 +286,13 @@ export default {
 <style scoped>
 .roles-container {
   padding: 20px;
+}
+
+.search-bar {
+  margin-bottom: 20px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 4px;
 }
 
 .toolbar {

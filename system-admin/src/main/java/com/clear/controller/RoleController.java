@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.clear.common.R;
 import com.clear.entity.Role;
+import com.clear.entity.User;
 import com.clear.model.request.PageRequest;
 import com.clear.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +23,14 @@ public class RoleController {
     private RoleService roleService;
 
     @GetMapping("list")
-    public R<IPage<Role>> list(PageRequest pageRequest) {
+    public R<IPage<Role>> list(PageRequest pageRequest,
+                               @RequestParam String name,
+                               @RequestParam String code) {
         Page<Role> page = new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
         IPage<Role> rolePage = roleService.page(page, new LambdaQueryWrapper<Role>()
                 .eq(Role::getDeleted, 0)
+                .like(name != null, Role::getName, name)
+                .like(code != null, Role::getCode, code)
                 .orderByDesc(Role::getCreateTime));
         return R.success(rolePage);
     }

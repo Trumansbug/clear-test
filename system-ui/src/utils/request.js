@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { Message } from 'element-ui'
 import router from '../router'
 import store from '../store'
 
@@ -32,18 +31,18 @@ service.interceptors.response.use(
     const res = response.data
     // 如果返回的状态码不是 200，说明接口有问题，需要处理
     if (res.code !== 200) {
-      Message({
-        message: res.message || '系统错误',
-        type: 'error',
-        duration: 5 * 1000
-      })
+      // Message({
+      //   message: res.message || '系统错误',
+      //   type: 'error',
+      //   duration: 5 * 1000
+      // })
 
       // 401: 未登录或token过期
       // 403: 权限不足
       if (res.code === 401 || res.code === 403) {
         // 重新登录
         store.dispatch('logout').then(() => {
-          router.push(`/login?redirect=${router.currentRoute.value.fullPath}`)
+          router.push(`/login?redirect=${router.currentRoute.fullPath}`)
         })
       }
       return Promise.reject(new Error(res.message || '系统错误'))
@@ -53,7 +52,13 @@ service.interceptors.response.use(
   },
   error => {
     console.error('响应错误:', error)
-    const { response } = error
+    const { response } = error;
+    if (response?.status === 403) {
+        // 重新登录
+        store.dispatch('logout').then(() => {
+            router.push(`/login?redirect=${router.currentRoute.fullPath}`)
+        })
+    }
     return Promise.reject(new Error(response?.data?.message || '系统错误'))
   }
 )

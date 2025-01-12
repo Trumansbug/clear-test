@@ -51,6 +51,20 @@ const routes = [
     ]
   },
   {
+    path: '/share',
+    component: Layout,
+    redirect: '/share/list',
+    meta: { title: '分享管理' },
+    children: [
+      {
+        path: 'list',
+        name: 'ShareList',
+        component: () => import('../views/share/Shares.vue'),
+        meta: { title: '分享列表' }
+      }
+    ]
+  },
+  {
     path: '/user',
     component: Layout,
     redirect: '/user/list',

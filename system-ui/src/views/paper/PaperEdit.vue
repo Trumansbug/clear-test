@@ -35,17 +35,17 @@
       </template>
 
       <el-table :data="questionList" style="width: 100%">
-        <el-table-column type="index" label="序号" width="60" align="center" />
+        <el-table-column type="index" label="序号" align="center" />
         <el-table-column prop="content" label="题目内容" show-overflow-tooltip align="center"/>
-        <el-table-column prop="type" label="题目类型" width="100" align="center">
+        <el-table-column prop="type" label="题目类型" align="center">
           <template #default="scope">
             <el-tag :type="getQuestionTypeTag(scope.row.type)">
               {{ getQuestionTypeName(scope.row.type) }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="score" label="分值" width="80" align="center" />
-        <el-table-column label="操作" width="250" align="center">
+        <el-table-column prop="score" label="分值" align="center" />
+        <el-table-column label="操作" align="center">
           <template #default="scope">
             <el-button type="primary" link @click="handleEditQuestion(scope.row)">
               编辑
@@ -133,8 +133,8 @@
 
 <script>
 import { MessageBox, Message } from 'element-ui'
-import { getPaper, createPaper, updatePaper } from '../../api/paper'
-import { getQuestionsByPaperId, addQuestionToPaper, updatePaperQuestion, deleteQuestionFromPaper } from '../../api/paper'
+import { getPaper, createPaper, updatePaper } from '@/api/paper'
+import { getQuestionsByPaperId, addQuestionToPaper, updatePaperQuestion, deleteQuestionFromPaper } from '@/api/paper'
 
 export default {
   name: 'PaperEdit',
@@ -179,7 +179,7 @@ export default {
       try {
         const res = await getPaper(this.paperId)
         this.paperForm = res.data
-        this.getQuestionList()
+        await this.getQuestionList()
       } catch (error) {
         console.error('获取试卷信息失败:', error)
       }
@@ -199,7 +199,7 @@ export default {
           await updatePaper(this.paperId, this.paperForm)
         } else {
           const res = await createPaper(this.paperForm)
-          this.$router.replace(`/paper/edit/${res.data.id}`)
+          await this.$router.replace(`/paper/edit/${res.data.id}`)
         }
         Message.success('保存成功')
       } catch (error) {
@@ -319,10 +319,6 @@ export default {
 
 .option-label {
   width: 30px;
-  margin-right: 10px;
-}
-
-.el-input {
   margin-right: 10px;
 }
 </style> 

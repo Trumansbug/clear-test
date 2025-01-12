@@ -154,7 +154,9 @@ export default {
       },
       rules: {
         title: [
-          { required: true, message: '请输入试卷标题', trigger: 'change' }
+          { required: true, message: '请输入试卷标题', trigger: 'blur' },
+          { min: 2, message: '标题长度至少为2个字符', trigger: 'blur' },
+          { max: 200, message: '标题长度不能超过200个字符', trigger: 'blur' }
         ]
       },
       questionList: [],
@@ -199,7 +201,7 @@ export default {
               this.$message.success('创建成功')
             }
           } catch (error) {
-            this.$message.error('保存试卷失败：' + error)
+            this.$message.error('保存试卷失败：' + error?.message)
           }
         }
       })
@@ -239,7 +241,7 @@ export default {
         try {
           await deleteQuestionFromPaper(this.paperId, row.id)
           this.$message.success('删除成功')
-          this.getQuestionList()
+          await this.getQuestionList()
         } catch (error) {
           console.error('删除题目失败:', error)
         }
@@ -269,7 +271,7 @@ export default {
             }
             this.$message.success(this.questionDialogType === 'add' ? '添加成功' : '更新成功')
             this.questionDialogVisible = false
-            this.getQuestionList()
+            await this.getQuestionList()
           } catch (error) {
             console.error('保存题目失败:', error)
           }
