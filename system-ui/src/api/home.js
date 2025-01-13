@@ -12,4 +12,11 @@ export function getRecentPapers() {
     url: '/papers/recent',
     method: 'get'
   })
-} 
+}
+
+export function globalCount() {
+  return request({
+    url: '/global/count',
+    method: 'get'
+  })
+}

@@ -39,7 +39,7 @@
       <el-table-column prop="expireTime" label="过期时间" align="center" :formatter="formatTime" />
       <el-table-column label="操作" align="center" min-width="180" fixed="right">
         <template slot-scope="scope">
-          <el-button type="primary" v-if="scope.row.status === 1" link @click="generateTestUrl(scope.row)">获取链接</el-button>
+          <el-button id="copyUrlBtn" type="primary" v-if="scope.row.status === 1" :data-clipboard-text="testUrl" link @click="copyTestUrl(scope.row)">获取链接</el-button>
           <el-button type="danger" link @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>
@@ -123,10 +123,11 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { Message } from 'element-ui'
-import { getShareList, deleteShare, batchDeleteShare, createShare, changeShareStatus } from '@/api/share'
-import { getPaperList} from '@/api/paper'
+import {mapGetters} from 'vuex'
+import {Message} from 'element-ui'
+import {batchDeleteShare, changeShareStatus, createShare, deleteShare, getShareList} from '@/api/share'
+import {getPaperList} from '@/api/paper'
+import Clipboard from 'clipboard'
 
 
 export default {
@@ -161,6 +162,7 @@ export default {
       searchPaperForm: {
         title: ''
       },
+      testUrl: '',
       addShareFormRules: {
         expireTime: [
           { required: true, message: '请选择过期时间', trigger: 'blur' }
@@ -180,16 +182,20 @@ export default {
     }
   },
   methods: {
-    generateTestUrl(row){
+    copyTestUrl(row){
       // 获取当前程序运行的 URL
       const baseUrl = window.location.origin
       // 拼接完整的测试链接
-      const testUrl = `${baseUrl}/paper/doTest/${row.code}`
-      // 复制到剪贴板
-      navigator.clipboard.writeText(testUrl).then(() => {
+      this.testUrl = `${baseUrl}/paper/doTest/${row.code}`;
+
+      let clipBoard = new Clipboard('#copyUrlBtn');
+      clipBoard.on('success', function() {
+        clipBoard.destroy() // 销毁上一次的复制内容
+        clipBoard = new Clipboard('#copyUrlBtn')
         Message.success('获取完成，已复制到剪贴板')
-      }).catch(() => {
-        Message.error('获取失败')
+      })
+      clipBoard.on('error', function() {
+        Message.info('复制失败，请手动复制')
       })
     },
     formatTime(row, column, cellValue) {

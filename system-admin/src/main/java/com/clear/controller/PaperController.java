@@ -44,6 +44,7 @@ public class PaperController {
 
     @PostMapping("/add")
     @PreAuthorize("hasRole('ADMIN')")
+    @LogRecord("添加试卷")
     public R<Paper> add(@RequestBody Paper paper) {
         paperService.savePaper(paper);
         return R.success(paper);
@@ -51,6 +52,7 @@ public class PaperController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @LogRecord("修改试卷")
     public R<Void> update(@PathVariable Long id, @RequestBody Paper paper) {
         paperService.checkPaperCanEdit(id);
         paper.setId(id);
@@ -60,6 +62,7 @@ public class PaperController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @LogRecord("删除试卷")
     public R<Void> delete(@PathVariable Long id) {
         paperService.checkPaperCanEdit(id);
         paperService.removeById(id);
@@ -68,6 +71,7 @@ public class PaperController {
 
     @PostMapping("/batchDelete")
     @PreAuthorize("hasRole('ADMIN')")
+    @LogRecord("批量删除试卷")
     public R<Void> batchDelete(@RequestBody Long[] ids) {
         if (ids != null) {
             for (Long id : ids) {
@@ -81,6 +85,7 @@ public class PaperController {
 
     @PutMapping("/{id}/publish")
     @PreAuthorize("hasRole('ADMIN')")
+    @LogRecord("发布试卷")
     public R<Void> publish(@PathVariable Long id) {
         paperService.publishPaper(id);
         return R.success();
@@ -88,11 +93,13 @@ public class PaperController {
 
     @GetMapping("/{paperId}/questions/list")
     @PreAuthorize("hasRole('ADMIN')")
+    @LogRecord("获取试卷试题列表")
     public R<List<Question>> getQuestions(@PathVariable Long paperId) {
         return R.success(questionService.getQuestionsByPaperId(paperId));
     }
 
     @GetMapping("/getPaperByShareCode/{shareCode}")
+    @LogRecord("获取试卷分享链接")
     public R<Paper> getPaperByShareCode(@PathVariable String shareCode) {
         Paper paper = paperService.getPaperByShareCode(shareCode);
         return R.success(paper);

@@ -3,9 +3,9 @@ package com.clear.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.clear.annotation.LogRecord;
 import com.clear.common.R;
 import com.clear.entity.Role;
-import com.clear.entity.User;
 import com.clear.model.request.PageRequest;
 import com.clear.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +23,7 @@ public class RoleController {
     private RoleService roleService;
 
     @GetMapping("list")
+    @LogRecord("获取角色列表")
     public R<IPage<Role>> list(PageRequest pageRequest,
                                @RequestParam String name,
                                @RequestParam String code) {
@@ -36,6 +37,7 @@ public class RoleController {
     }
 
     @GetMapping("/all")
+    @LogRecord("获取所有角色列表")
     public R<List<Role>> listAll() {
         List<Role> roles = roleService.list(new LambdaQueryWrapper<Role>()
                 .eq(Role::getDeleted, 0)
@@ -44,11 +46,13 @@ public class RoleController {
     }
 
     @GetMapping("/{id}")
+    @LogRecord("获取角色详情")
     public R<Role> getById(@PathVariable Long id) {
         return R.success(roleService.getById(id));
     }
 
-    @PostMapping
+    @PostMapping("add")
+    @LogRecord("添加角色")
     public R<Void> add(@RequestBody Role role) {
         roleService.checkRoleCodeUnique(role.getCode());
         roleService.save(role);
@@ -56,6 +60,7 @@ public class RoleController {
     }
 
     @PutMapping("/{id}")
+    @LogRecord("修改角色")
     public R<Void> update(@PathVariable Long id, @RequestBody Role role) {
         Role oldRole = roleService.getById(id);
         if (!oldRole.getCode().equals(role.getCode())) {
@@ -67,12 +72,14 @@ public class RoleController {
     }
 
     @DeleteMapping("/{id}")
+    @LogRecord("删除角色")
     public R<Void> delete(@PathVariable Long id) {
         roleService.removeById(id);
         return R.success();
     }
 
     @GetMapping("/user/{userId}")
+    @LogRecord("获取用户角色列表")
     public R<List<Role>> getRolesByUserId(@PathVariable Long userId) {
         return R.success(roleService.getRolesByUserId(userId));
     }

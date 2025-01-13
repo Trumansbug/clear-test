@@ -2,6 +2,7 @@ package com.clear.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.clear.annotation.LogRecord;
 import com.clear.common.R;
 import com.clear.entity.Paper;
 import com.clear.entity.Question;
@@ -29,12 +30,14 @@ public class ShareController {
     private UserService userService;
 
     @GetMapping("/list")
+    @LogRecord("获取分享列表")
     public R<IPage<Share>> list(PageRequest pageRequest) {
         Page<Share> page = new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
         return R.success(shareService.getShareList(page));
     }
 
     @PostMapping("/add")
+    @LogRecord("添加分享")
     public R<String> add(@RequestBody Share share) {
         User currentUser = userService.getCurrentUser();
         share.setCreatorId(currentUser.getId());
@@ -43,6 +46,7 @@ public class ShareController {
     }
 
     @GetMapping("/changeStatus")
+    @LogRecord("修改分享状态")
     public R<String> changeStatus(@RequestParam Long id, @RequestParam Integer status) {
         Share share = new Share();
         share.setId(id);
@@ -52,12 +56,14 @@ public class ShareController {
     }
 
     @DeleteMapping("/{id}")
+    @LogRecord("删除分享")
     public R<Void> delete(@PathVariable Long id) {
         shareService.removeById(id);
         return R.success();
     }
 
     @PostMapping("/batchDelete")
+    @LogRecord("批量删除分享")
     public R<Void> batchDelete(@RequestBody Long[] ids) {
         if (ids != null) {
             for (Long id : ids) {

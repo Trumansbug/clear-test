@@ -4,7 +4,7 @@
     <div class="sidebar-container">
       <div class="logo">
         <!-- <img src="../assets/logo.png" alt="Logo"> -->
-        <span>乘风测试</span>
+        <span>乘风 1.0</span>
       </div>
       <el-menu
         :default-active="$route.path"
@@ -35,7 +35,7 @@
         </el-submenu>
         <el-submenu index="2" v-if="hasRole('ROLE_ADMIN')">
           <template slot="title">
-            <i class="el-icon-setting"></i>
+            <i class="el-icon-user-solid"></i>
             <span>权限管理</span>
           </template>
           <el-menu-item-group>
@@ -56,11 +56,11 @@
           </template>
           <el-menu-item-group>
             <el-menu-item index="/system/log">
-              <i class="el-icon-user"></i>
+              <i class="el-icon-time"></i>
               <span slot="title">日志管理</span>
             </el-menu-item>
             <el-menu-item index="/system/config">
-              <i class="el-icon-s-custom"></i>
+              <i class="el-icon-s-tools"></i>
               <span slot="title">配置管理</span>
             </el-menu-item>
           </el-menu-item-group>
@@ -75,7 +75,7 @@
         <div class="right-menu">
           <el-dropdown trigger="click" @command="handleCommand">
             <span class="el-dropdown-link">
-              {{ username }}<i class="el-icon-arrow-down el-icon--right"></i>
+              <i class="el-icon-setting"></i>
             </span>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="logout">退出登录</el-dropdown-item>
@@ -166,6 +166,7 @@ export default {
 .el-dropdown-link {
   cursor: pointer;
   color: #409EFF;
+  font-size: 25px;
 }
 
 .app-main {

@@ -6,11 +6,17 @@
 
 <script>
 export default {
-  name: 'App'
+  name: 'App',
+  mounted() {
+    document.title = '乘风 1.0';
+  }
 }
 </script>
 
 <style>
+bady {
+  font-family: "Microsoft YaHei",serif;
+}
 #app {
   height: 100%;
 }

@@ -52,8 +52,8 @@
               <i class="el-icon-finished"></i>
             </div>
             <div class="stats-info">
-              <div class="stats-value">{{ stats.submissionCount }}</div>
-              <div class="stats-label">答卷总数</div>
+              <div class="stats-value">{{ stats.shareCount }}</div>
+              <div class="stats-label">分享总数</div>
             </div>
           </div>
         </el-col>
@@ -63,18 +63,12 @@
     <div class="recent-section">
       <h2>最近试卷</h2>
       <el-table :data="recentPapers" style="width: 100%">
-        <el-table-column prop="title" label="试卷标题" />
-        <el-table-column prop="description" label="描述" show-overflow-tooltip />
+        <el-table-column prop="title" label="试卷标题" align="center" />
+        <el-table-column prop="remark" label="描述" show-overflow-tooltip align="center" />
         <el-table-column prop="totalScore" label="总分" width="100" align="center" />
-        <el-table-column prop="status" label="状态" width="100" align="center">
-          <template #default="scope">
-            <el-tag :type="scope.row.status === 1 ? 'success' : 'warning'">
-              {{ scope.row.status === 1 ? '已发布' : '未发布' }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" width="180" />
-        <el-table-column label="操作" width="150" fixed="right">
+        <el-table-column prop="createTime" label="创建时间" width="180" align="center" :formatter="formatTime" />
+        <el-table-column prop="updateTime" label="更新时间" width="180" align="center" :formatter="formatTime" />
+        <el-table-column label="操作" width="150" align="center">
           <template #default="scope">
             <el-button type="primary" link @click="handlePreview(scope.row)">
               预览
@@ -83,11 +77,48 @@
         </el-table-column>
       </el-table>
     </div>
+
+    <!-- 试卷预览对话框 -->
+    <el-dialog
+        :visible.sync="previewVisible"
+        title="试卷预览"
+        width="1000px"
+    >
+      <div class="preview-content">
+        <h2>{{ previewPaper.title }}</h2>
+        <p class="description" v-html="previewPaper.description"></p>
+        <div class="total-score">总分：{{ previewPaper.totalScore || 0 }} 分</div>
+
+        <template v-if="questions.length > 0">
+          <div v-for="(question, index) in questions" :key="question.id" class="question-item">
+            <div class="question-header">
+              第 {{ index + 1 }} 题（{{ question.score }}分）
+              <el-tag :type="getQuestionTypeTag(question.type)" size="small" class="question-type">
+                {{ questionTypes[question.type] }}
+              </el-tag>
+            </div>
+            <div class="question-content">{{ question.content }}</div>
+            <div v-if="question.type !== 3" class="question-options">
+              <div v-for="(option, key) in JSON.parse(question.options)" :key="key">
+                {{ String.fromCharCode(65 + Number(key)) }}. {{ option.content }}
+                <span class="option-score">({{ option.score }}分)</span>
+              </div>
+            </div>
+            <div v-if="question.type === 2" class="question-mode">
+              <span class="mode-label">判断模式：</span>
+              <span>{{ question.judgeMode === 1 ? '全部对得分' : '部分对得分' }}</span>
+            </div>
+          </div>
+        </template>
+        <el-empty v-else description="暂无题目" />
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { getPaperList } from '../../api/paper'
+import { getPaperList, getQuestionsByPaperId } from '@/api/paper'
+import { globalCount } from "@/api/home";
 
 export default {
   name: 'Home',
@@ -100,9 +131,17 @@ export default {
         userCount: 0,
         paperCount: 0,
         questionCount: 0,
-        submissionCount: 0
+        shareCount: 0
       },
-      recentPapers: []
+      recentPapers: [],
+      previewVisible: false,
+      previewPaper: {},
+      questions: [],
+      questionTypes: {
+        1: '单选题',
+        2: '多选题',
+        3: '填空题'
+      }
     }
   },
   methods: {
@@ -117,30 +156,40 @@ export default {
         console.error('获取最近试卷失败:', error)
       }
     },
+    async loadData() {
+      try {
+        const res = await globalCount()
+        this.stats = res.data
+      } catch (error) {
+        console.error('获取统计数据失败:', error)
+      }
+    },
+    formatTime(row, column, cellValue) {
+      return this.$formatTime(cellValue);
+    },
     hasRole(role) {
       return this.$store.state.roles.includes(role)
     },
-    handleToPaper() {
-      this.$router.push('/paper/list')
+    async handlePreview(row) {
+      this.previewPaper = row
+      try {
+        const res = await getQuestionsByPaperId(row.id)
+        this.questions = res.data
+      } catch (error) {
+        console.error('获取题目失败:', error)
+      }
+      this.previewVisible = true
     },
-    handleToUser() {
-      this.$router.push('/user/list')
+    getQuestionTypeTag(type) {
+      const types = {
+        1: '',
+        2: 'success'
+      }
+      return types[type] || 'info'
     },
-    handleToRole() {
-      this.$router.push('/role/list')
-    },
-    handlePreview(paper) {
-      this.$router.push(`/paper/preview/${paper.id}`)
-    }
   },
   mounted() {
-    // 模拟统计数据
-    this.stats = {
-      userCount: 100,
-      paperCount: 50,
-      questionCount: 200,
-      submissionCount: 1000
-    }
+    this.loadData()
     this.getRecentPapers()
   }
 }
@@ -266,5 +315,54 @@ export default {
   margin-bottom: 20px;
   font-size: 24px;
   color: #303133;
+}
+
+.preview-content {
+  padding: 0;
+}
+
+.preview-content h2 {
+  text-align: center;
+}
+
+.total-score {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.question-header {
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.question-content {
+  margin-bottom: 10px;
+}
+
+.question-options {
+  color: #666;
+  padding-left: 20px;
+}
+
+.question-item {
+  margin-bottom: 30px;
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+.question-type {
+  margin-left: 10px;
+}
+
+.question-mode {
+  margin-top: 10px;
+  color: #606266;
+}
+
+.option-score {
+  margin-left: 8px;
+  color: #F56C6C;
 }
 </style> 

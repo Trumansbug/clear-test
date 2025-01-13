@@ -3,6 +3,7 @@ package com.clear.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.clear.annotation.LogRecord;
 import com.clear.common.R;
 import com.clear.entity.User;
 import com.clear.model.request.PageRequest;
@@ -26,6 +27,7 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     @GetMapping("list")
+    @LogRecord("获取用户列表")
     public R<IPage<User>> list(PageRequest pageRequest,
                                @RequestParam(required = false) String username,
                                @RequestParam(required = false) String nickname) {
@@ -39,11 +41,13 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @LogRecord("获取用户详情")
     public R<User> getById(@PathVariable Long id) {
         return R.success(userService.getUserById(id));
     }
 
-    @PostMapping
+    @PostMapping("/add")
+    @LogRecord("添加用户")
     public R<Void> add(@RequestBody User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userService.save(user);
@@ -51,6 +55,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
+    @LogRecord("修改用户")
     public R<Void> update(@PathVariable Long id, @RequestBody User user) {
         user.setId(id);
         if (user.getPassword() != null) {
@@ -61,12 +66,14 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @LogRecord("删除用户")
     public R<Void> delete(@PathVariable Long id) {
         userService.removeById(id);
         return R.success();
     }
 
     @PutMapping("/{id}/roles")
+    @LogRecord("修改用户角色")
     public R<Void> updateRoles(@PathVariable Long id, @RequestBody List<Long> roleIds) {
         userService.updateUserRoles(id, roleIds);
         return R.success();
