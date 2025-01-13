@@ -27,7 +27,7 @@ jwt:
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/*Mapper.xml
-  type-aliases-package: com.iq.entity
+  type-aliases-package: com.clear.entity
   configuration:
     map-underscore-to-camel-case: true
   global-config:

@@ -35,8 +35,8 @@
         </template>
       </el-table-column>
       <el-table-column prop="creatorName" label="创建人" align="center" />
-      <el-table-column prop="createTime" label="创建时间" align="center" />
-      <el-table-column prop="expireTime" label="过期时间" align="center" />
+      <el-table-column prop="createTime" label="创建时间" align="center" :formatter="formatTime" />
+      <el-table-column prop="expireTime" label="过期时间" align="center" :formatter="formatTime" />
       <el-table-column label="操作" align="center" min-width="180" fixed="right">
         <template slot-scope="scope">
           <el-button type="primary" v-if="scope.row.status === 1" link @click="generateTestUrl(scope.row)">获取链接</el-button>
@@ -107,7 +107,7 @@
         <el-table-column prop="remark" label="描述" show-overflow-tooltip align="center" />
         <el-table-column prop="totalScore" label="总分" align="center" />
         <el-table-column prop="creatorName" label="创建人" align="center" />
-        <el-table-column prop="createTime" label="创建时间" align="center" />
+        <el-table-column prop="createTime" label="创建时间" align="center" :formatter="formatTime" />
       </el-table>
       <el-pagination
           :current-page.sync="queryPaperParams.current"
@@ -191,6 +191,9 @@ export default {
       }).catch(() => {
         Message.error('获取失败')
       })
+    },
+    formatTime(row, column, cellValue) {
+      return this.$formatTime(cellValue);
     },
     async getList() {
       this.loading = true

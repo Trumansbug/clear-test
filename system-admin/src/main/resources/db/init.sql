@@ -83,3 +83,15 @@ INSERT INTO `sys_user_role` (`user_id`, `role_id`)
 SELECT 
     (SELECT id FROM sys_user WHERE username = 'admin'),
     (SELECT id FROM sys_role WHERE code = 'ROLE_ADMIN'); 
+
+-- 创建初始表结构
+CREATE TABLE IF NOT EXISTS api_log_template (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    api_path VARCHAR(255),
+    method_name VARCHAR(100),
+    request_params TEXT,
+    response_data TEXT,
+    execution_time BIGINT,
+    ip_address VARCHAR(50),
+    create_time DATETIME
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4; 

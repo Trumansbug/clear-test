@@ -31,6 +31,20 @@ const routes = [
     ]
   },
   {
+    path: '/system',
+    name: 'System',
+    component: Layout,
+    meta: { title: '系统管理', icon: 'el-icon-setting' },
+    children: [
+      {
+        path: 'log',
+        name: 'SystemLog',
+        component: () => import('@/views/system/log/index'),
+        meta: { title: '系统日志' }
+      }
+    ]
+  },
+  {
     path: '/paper',
     component: Layout,
     redirect: '/paper/list',

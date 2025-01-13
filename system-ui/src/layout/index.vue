@@ -49,6 +49,22 @@
             </el-menu-item>
           </el-menu-item-group>
         </el-submenu>
+        <el-submenu index="3">
+          <template slot="title">
+            <i class="el-icon-setting"></i>
+            <span>系统管理</span>
+          </template>
+          <el-menu-item-group>
+            <el-menu-item index="/system/log">
+              <i class="el-icon-user"></i>
+              <span slot="title">日志管理</span>
+            </el-menu-item>
+            <el-menu-item index="/system/config">
+              <i class="el-icon-s-custom"></i>
+              <span slot="title">配置管理</span>
+            </el-menu-item>
+          </el-menu-item-group>
+        </el-submenu>
       </el-menu>
     </div>
 

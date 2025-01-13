@@ -2,6 +2,7 @@ package com.clear.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.clear.annotation.LogRecord;
 import com.clear.common.R;
 import com.clear.entity.Paper;
 import com.clear.entity.Question;
@@ -29,12 +30,14 @@ public class PaperController {
     private UserService userService;
 
     @GetMapping("list")
+    @LogRecord("获取试卷列表")
     public R<IPage<Paper>> list(PageRequest pageRequest) {
         Page<Paper> page = new Page<>(pageRequest.getCurrent(), pageRequest.getSize());
         return R.success(paperService.getPaperList(page));
     }
 
     @GetMapping("/{id}")
+    @LogRecord("获取试卷详情")
     public R<Paper> getById(@PathVariable Long id) {
         return R.success(paperService.getById(id));
     }

@@ -14,10 +14,21 @@
 
     <div class="toolbar">
       <el-button type="primary" @click="handleAdd" v-if="hasRole('ROLE_ADMIN')">新增试卷</el-button>
-      <el-button type="danger" @click="handleBatchDelete" v-if="hasRole('ROLE_ADMIN')">删除试卷</el-button>
+      <el-button
+          type="danger"
+          :disabled="selectedIds.length === 0"
+          @click="handleBatchDelete"
+          v-if="hasRole('ROLE_ADMIN')"
+      >删除试卷</el-button>
     </div>
 
-    <el-table ref="multipleTable" v-loading="loading" :data="paperList" style="width: 100%">
+    <el-table
+        ref="multipleTable"
+        v-loading="loading"
+        :data="paperList"
+        @selection-change="handleSelectionChange"
+        style="width: 100%"
+    >
       <el-table-column type="selection" align="center" />
       <el-table-column prop="title" label="试卷标题" align="center" />
       <el-table-column prop="remark" label="备注" show-overflow-tooltip align="center" />
@@ -37,7 +48,6 @@
           <el-button type="primary" link @click="handlePreview(scope.row)">预览</el-button>
           <template v-if="hasRole('ROLE_ADMIN') && scope.row.status === 0">
             <el-button type="primary" link @click="handleEdit(scope.row)">编辑</el-button>
-            <el-button type="success" link @click="handlePublish(scope.row)">发布</el-button>
             <el-button type="danger" link @click="handleDelete(scope.row)">删除</el-button>
           </template>
         </template>
@@ -95,7 +105,6 @@
 <script>
 import { mapGetters } from 'vuex'
 import { Message } from 'element-ui'
-import moment from 'moment'
 import { getPaperList, deletePaper, publishPaper, getQuestionsByPaperId, batchDeletePaper } from '@/api/paper'
 
 export default {
@@ -105,6 +114,7 @@ export default {
       loading: false,
       paperList: [],
       total: 0,
+      selectedIds: [],
       queryParams: {
         current: 1,
         size: 10
@@ -146,11 +156,11 @@ export default {
       }
     },
     formatTime(row, column, cellValue) {
-      // 使用 moment.js 或其他日期格式化库
-      if (!cellValue) {
-        return '';
-      }
-      return moment(cellValue).format('YYYY-MM-DD HH:mm:ss');
+      return this.$formatTime(cellValue);
+    },
+    // 多选框选中数据
+    handleSelectionChange(selection) {
+      this.selectedIds = selection.map(item => item.id)
     },
     handleAdd() {
       this.$router.push('/paper/add')
@@ -160,8 +170,7 @@ export default {
         type: 'warning'
       }).then(async () => {
         try {
-          const ids = this.$refs.multipleTable.selection.map(paper => paper.id)
-          await batchDeletePaper(ids)
+          await batchDeletePaper(this.selectedIds)
           Message.success('删除成功')
           await this.getList()
         } catch (error) {

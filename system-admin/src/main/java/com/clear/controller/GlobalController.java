@@ -1,5 +1,6 @@
 package com.clear.controller;
 
+import com.clear.annotation.LogRecord;
 import com.clear.common.R;
 import com.clear.service.PaperService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ public class GlobalController {
     private PaperService paperService;
 
     @GetMapping("/count")
+    @LogRecord("获取全局统计信息")
     public R<Map<String, Object>> count() {
 
         return R.success();

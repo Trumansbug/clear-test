@@ -1,5 +1,6 @@
 package com.clear.controller;
 
+import com.clear.annotation.LogRecord;
 import com.clear.common.R;
 import com.clear.entity.User;
 import com.clear.model.request.LoginRequest;
@@ -18,6 +19,7 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping("/login")
+    @LogRecord("用户登录")
     public R<Map<String, Object>> login(@RequestBody LoginRequest request) {
         String token = userService.login(request);
         User user = userService.getCurrentUser();
@@ -30,6 +32,7 @@ public class AuthController {
     }
 
     @GetMapping("/info")
+    @LogRecord("获取用户信息")
     public R<User> getUserInfo() {
         return R.success(userService.getCurrentUser());
     }
