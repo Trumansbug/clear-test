@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.clear.entity.Paper;
 import com.clear.entity.Share;
 import com.clear.mapper.ShareMapper;
 import com.clear.service.ShareService;
@@ -32,6 +33,11 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements
         share.setCreateTime(new Date());
 
         this.save(share);
+    }
+
+    @Override
+    public Share getByShareCode(String shareCode) {
+        return baseMapper.selectByShareCode(shareCode);
     }
 
     private void checkAddShare(Share share) {

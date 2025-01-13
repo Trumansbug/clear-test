@@ -4,14 +4,12 @@ import com.clear.common.R;
 import com.clear.entity.Question;
 import com.clear.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/questions")
-@PreAuthorize("hasRole('ADMIN')")
 public class QuestionController {
 
     @Autowired
@@ -22,9 +20,8 @@ public class QuestionController {
         return R.success(questionService.getQuestionsByPaperId(paperId));
     }
 
-    @PostMapping("/add/{paperId}")
-    public R<Void> add(@RequestBody Question question, @PathVariable Long paperId) {
-        question.setPaperId(paperId);
+    @PostMapping("/add")
+    public R<Void> add(@RequestBody Question question) {
         questionService.addQuestion(question);
         return R.success();
     }

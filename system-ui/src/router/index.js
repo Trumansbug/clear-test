@@ -12,6 +12,12 @@ const routes = [
     meta: { title: '登录' }
   },
   {
+    path: '/paper/doTest/:shareCode',
+    name: 'PaperDoTest',
+    component: () => import('../views/paper/PaperAnswer.vue'),
+    meta: { title: '回答试卷', noAuth: true }
+  },
+  {
     path: '/',
     component: Layout,
     redirect: '/home',
@@ -41,12 +47,6 @@ const routes = [
         name: 'PaperAdd',
         component: () => import('../views/paper/PaperAdd.vue'),
         meta: { title: '新增试卷' }
-      },
-      {
-        path: 'edit/:id',
-        name: 'PaperEdit',
-        component: () => import('../views/paper/PaperEdit.vue'),
-        meta: { title: '编辑试卷' }
       }
     ]
   },
@@ -102,8 +102,17 @@ const router = new VueRouter({
 
 // 路由守卫
 router.beforeEach((to, from, next) => {
+  // 定义不需要登录就能访问的白名单路径
+  const whiteList = ['/login', '/paper/doTest']
+  
   const token = localStorage.getItem('token')
   const roles = JSON.parse(localStorage.getItem('roles') || '[]')
+
+  // 检查当前路径是否在白名单中
+  if (whiteList.some(path => to.path.startsWith(path))) {
+    next()
+    return
+  }
 
   if (to.path === '/login') {
     if (token) {

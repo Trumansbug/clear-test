@@ -22,7 +22,12 @@ export function createPaper(data) {
   return request({
     url: '/paper/add',
     method: 'post',
-    data
+    data: {
+      title: data.title,
+      remark: data.remark,
+      description: data.description,
+      analysis: data.analysis
+    }
   })
 }
 
@@ -31,7 +36,12 @@ export function updatePaper(id, data) {
   return request({
     url: `/paper/${id}`,
     method: 'put',
-    data
+    data: {
+      title: data.title,
+      remark: data.remark,
+      description: data.description,
+      analysis: data.analysis
+    }
   })
 }
 
@@ -68,17 +78,25 @@ export function getQuestionsByPaperId(paperId) {
   })
 }
 
-// 添加题目到试卷
-export function addQuestionToPaper(paperId, data) {
+// 获取试卷的题目列表
+export function getPaperByShareCode(shareCode) {
   return request({
-    url: `/questions/add/${paperId}`,
+    url: `/paper/getPaperByShareCode/${shareCode}`,
+    method: 'get'
+  })
+}
+
+// 添加题目到试卷
+export function addQuestionToPaper(data) {
+  return request({
+    url: `/questions/add`,
     method: 'post',
     data
   })
 }
 
 // 更新试卷中的题目
-export function updatePaperQuestion(paperId, questionId, data) {
+export function updatePaperQuestion(data) {
   return request({
     url: `/questions/edit`,
     method: 'post',

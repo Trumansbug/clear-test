@@ -7,6 +7,7 @@
     <groupId>com.iq</groupId>
     <artifactId>system-admin</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -75,6 +76,8 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <mainClass>com.clear.ClearTestApplication</mainClass>
+                    <finalName>system-admin</finalName>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>

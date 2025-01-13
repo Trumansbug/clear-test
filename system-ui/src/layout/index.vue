@@ -4,7 +4,7 @@
     <div class="sidebar-container">
       <div class="logo">
         <!-- <img src="../assets/logo.png" alt="Logo"> -->
-        <span>雾晴测试</span>
+        <span>乘风测试</span>
       </div>
       <el-menu
         :default-active="$route.path"

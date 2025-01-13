@@ -20,17 +20,18 @@
     <el-table ref="multipleTable" v-loading="loading" :data="paperList" style="width: 100%">
       <el-table-column type="selection" align="center" />
       <el-table-column prop="title" label="试卷标题" align="center" />
-      <el-table-column prop="description" label="描述" show-overflow-tooltip align="center" />
+      <el-table-column prop="remark" label="备注" show-overflow-tooltip align="center" />
       <el-table-column prop="totalScore" label="总分" align="center" />
-      <el-table-column prop="status" label="状态" align="center">
-        <template slot-scope="scope">
-          <el-tag :type="scope.row.status === 1 ? 'success' : 'warning'">
-            {{ scope.row.status === 1 ? '已发布' : '未发布' }}
-          </el-tag>
-        </template>
-      </el-table-column>
+<!--      <el-table-column prop="status" label="状态" align="center">-->
+<!--        <template slot-scope="scope">-->
+<!--          <el-tag :type="scope.row.status === 1 ? 'success' : 'warning'">-->
+<!--            {{ scope.row.status === 1 ? '已发布' : '未发布' }}-->
+<!--          </el-tag>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
       <el-table-column prop="creatorName" label="创建人" align="center" />
-      <el-table-column prop="createTime" label="创建时间" align="center" />
+      <el-table-column prop="createTime" label="创建时间" align="center" :formatter="formatTime" />
+      <el-table-column prop="updateTime" label="更新时间" align="center" :formatter="formatTime" />
       <el-table-column label="操作" align="center" min-width="180" fixed="right">
         <template slot-scope="scope">
           <el-button type="primary" link @click="handlePreview(scope.row)">预览</el-button>
@@ -57,26 +58,31 @@
     <el-dialog
       :visible.sync="previewVisible"
       title="试卷预览"
-      width="800px"
+      width="1000px"
     >
       <div class="preview-content">
         <h2>{{ previewPaper.title }}</h2>
-        <p class="description">{{ previewPaper.description }}</p>
-        <div class="total-score">总分：{{ previewPaper.totalScore }} 分</div>
+        <p class="description" v-html="previewPaper.description"></p>
+        <div class="total-score">总分：{{ previewPaper.totalScore || 0 }} 分</div>
         
         <template v-if="questions.length > 0">
           <div v-for="(question, index) in questions" :key="question.id" class="question-item">
             <div class="question-header">
               第 {{ index + 1 }} 题（{{ question.score }}分）
-              <el-tag size="small" class="question-type">
+              <el-tag :type="getQuestionTypeTag(question.type)" size="small" class="question-type">
                 {{ questionTypes[question.type] }}
               </el-tag>
             </div>
             <div class="question-content">{{ question.content }}</div>
             <div v-if="question.type !== 3" class="question-options">
               <div v-for="(option, key) in JSON.parse(question.options)" :key="key">
-                {{ String.fromCharCode(65 + Number(key)) }}. {{ option }}
+                {{ String.fromCharCode(65 + Number(key)) }}. {{ option.content }}
+                <span class="option-score">({{ option.score }}分)</span>
               </div>
+            </div>
+            <div v-if="question.type === 2" class="question-mode">
+              <span class="mode-label">判断模式：</span>
+              <span>{{ question.judgeMode === 1 ? '全部对得分' : '部分对得分' }}</span>
             </div>
           </div>
         </template>
@@ -89,6 +95,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { Message } from 'element-ui'
+import moment from 'moment'
 import { getPaperList, deletePaper, publishPaper, getQuestionsByPaperId, batchDeletePaper } from '@/api/paper'
 
 export default {
@@ -116,7 +123,12 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['hasRole'])
+    ...mapGetters(['hasRole']),
+    totalScore() {
+      return this.questions.reduce((total, question) => {
+        return total + question.score
+      }, 0)
+    },
   },
   methods: {
     async getList() {
@@ -133,6 +145,13 @@ export default {
         this.loading = false
       }
     },
+    formatTime(row, column, cellValue) {
+      // 使用 moment.js 或其他日期格式化库
+      if (!cellValue) {
+        return '';
+      }
+      return moment(cellValue).format('YYYY-MM-DD HH:mm:ss');
+    },
     handleAdd() {
       this.$router.push('/paper/add')
     },
@@ -144,14 +163,17 @@ export default {
           const ids = this.$refs.multipleTable.selection.map(paper => paper.id)
           await batchDeletePaper(ids)
           Message.success('删除成功')
-          this.getList()
+          await this.getList()
         } catch (error) {
           console.error('删除试卷失败:', error)
         }
       })
     },
     handleEdit(row) {
-      this.$router.push(`/paper/edit/${row.id}`)
+      this.$router.push({
+        path: '/paper/add',
+        query: { id: row.id }
+      })
     },
     async handlePreview(row) {
       this.previewPaper = row
@@ -188,6 +210,13 @@ export default {
           console.error('发布试卷失败:', error)
         }
       })
+    },
+    getQuestionTypeTag(type) {
+      const types = {
+        1: '',
+        2: 'success'
+      }
+      return types[type] || 'info'
     },
     handleSearch() {
       this.queryParams.current = 1
@@ -229,12 +258,11 @@ export default {
 }
 
 .preview-content {
-  padding: 20px;
+  padding: 0;
 }
 
 .preview-content h2 {
   text-align: center;
-  margin-bottom: 20px;
 }
 
 .description {
@@ -271,5 +299,19 @@ export default {
 .question-options {
   color: #666;
   padding-left: 20px;
+}
+
+.question-mode {
+  margin-top: 10px;
+  color: #606266;
+}
+
+.option-score {
+  margin-left: 8px;
+  color: #F56C6C;
+}
+
+.mode-label {
+  font-weight: bold;
 }
 </style> 

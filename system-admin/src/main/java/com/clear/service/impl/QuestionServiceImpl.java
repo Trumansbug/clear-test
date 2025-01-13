@@ -75,24 +75,12 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Override
     public void checkAnswerFormat(Question question) {
-        if (question.getType() == 1) { // 单选题
-            if (!question.getAnswer().matches("^[A-Z]$")) {
-                throw new RuntimeException("单选题答案格式错误，应为大写字母A-Z");
-            }
-        } else if (question.getType() == 2) { // 多选题
-            String[] answers = question.getAnswer().split(",");
-            for (String answer : answers) {
-                if (!answer.matches("^[A-Z]$")) {
-                    throw new RuntimeException("多选题答案格式错误，应为大写字母A-Z，多个答案用逗号分隔");
-                }
-            }
-        }
-
         // 检查题目是否重复
         Long count = baseMapper.selectCount(
                 new QueryWrapper<Question>()
                         .eq("paper_id", question.getPaperId())
                         .eq("content", question.getContent())
+                        .ne(question.getId() != null, "id", question.getId())
         );
         if (count != null && count > 0) {
             throw new RuntimeException("题目内容【" + question.getContent() + "】重复");

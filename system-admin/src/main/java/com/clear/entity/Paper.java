@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @TableName("paper")
@@ -17,6 +18,14 @@ public class Paper {
      * 试卷标题
      */
     private String title;
+    /**
+     * 试卷备注
+     */
+    private String remark;
+    /**
+     * 试卷解析
+     */
+    private String analysis;
     /**
      * 试卷描述
      */
@@ -55,4 +64,9 @@ public class Paper {
      */
     @TableField(exist = false)
     private String username;
+    /**
+     * 题目集合
+     */
+    @TableField(exist = false)
+    private List<Question> questions;
 } 

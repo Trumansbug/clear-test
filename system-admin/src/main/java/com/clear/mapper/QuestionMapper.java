@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface QuestionMapper extends BaseMapper<Question> {
     
-    @Select("SELECT * FROM question WHERE paper_id = #{paperId} AND deleted = 0 ORDER BY order_num ASC")
+    @Select("SELECT * FROM question WHERE paper_id = #{paperId} AND deleted = 0 ORDER BY order_num")
     List<Question> selectQuestionsByPaperId(@Param("paperId") Long paperId);
     
     @Select("SELECT SUM(score) FROM question WHERE paper_id = #{paperId} AND deleted = 0")

@@ -31,9 +31,11 @@ public class Question {
      */
     private String options;
     /**
-     * 正确答案，多选题用逗号分隔
+     * 判断题模式
+     * 1: 全部对得分
+     * 2: 部分对得分
      */
-    private String answer;
+    private Integer judgeMode;
     /**
      * 分数
      */

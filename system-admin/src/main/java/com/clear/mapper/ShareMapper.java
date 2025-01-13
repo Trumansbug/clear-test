@@ -16,4 +16,8 @@ public interface ShareMapper extends BaseMapper<Share> {
     IPage<Share> selectShareList(Page<Share> page);
 
 
-} 
+    @Select("SELECT s.*, p.title AS paperTitle FROM share s " +
+            "LEFT JOIN paper p ON p.id = s.paper_id " +
+            "WHERE s.deleted = 0 AND s.code = #{shareCode}")
+    Share selectByShareCode(String shareCode);
+}

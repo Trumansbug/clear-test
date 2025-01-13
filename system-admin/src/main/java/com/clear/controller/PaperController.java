@@ -42,8 +42,6 @@ public class PaperController {
     @PostMapping("/add")
     @PreAuthorize("hasRole('ADMIN')")
     public R<Paper> add(@RequestBody Paper paper) {
-        paper.setCreatorId(userService.getCurrentUser().getId());
-        paper.setStatus(0); // 默认未发布
         paperService.savePaper(paper);
         return R.success(paper);
     }
@@ -91,9 +89,10 @@ public class PaperController {
         return R.success(questionService.getQuestionsByPaperId(paperId));
     }
 
-
-
-
-
+    @GetMapping("/getPaperByShareCode/{shareCode}")
+    public R<Paper> getPaperByShareCode(@PathVariable String shareCode) {
+        Paper paper = paperService.getPaperByShareCode(shareCode);
+        return R.success(paper);
+    }
 
 } 

@@ -11,4 +11,6 @@ public interface ShareService extends IService<Share> {
     IPage<Share> getShareList(Page<Share> page);
 
     void addShare(Share share);
+
+    Share getByShareCode(String shareCode);
 }

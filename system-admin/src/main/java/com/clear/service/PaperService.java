@@ -16,4 +16,6 @@ public interface PaperService extends IService<Paper> {
     void updateTotalScore(Long id);
 
     void savePaper(Paper paper);
-} 
+
+    Paper getPaperByShareCode(String shareCode);
+}

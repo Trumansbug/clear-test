@@ -39,6 +39,7 @@
       <el-table-column prop="expireTime" label="过期时间" align="center" />
       <el-table-column label="操作" align="center" min-width="180" fixed="right">
         <template slot-scope="scope">
+          <el-button type="primary" v-if="scope.row.status === 1" link @click="generateTestUrl(scope.row)">获取链接</el-button>
           <el-button type="danger" link @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>
@@ -103,7 +104,7 @@
           v-loading="loadingPaper"
       >
         <el-table-column prop="title" label="试卷标题" align="center" />
-        <el-table-column prop="description" label="描述" show-overflow-tooltip align="center" />
+        <el-table-column prop="remark" label="描述" show-overflow-tooltip align="center" />
         <el-table-column prop="totalScore" label="总分" align="center" />
         <el-table-column prop="creatorName" label="创建人" align="center" />
         <el-table-column prop="createTime" label="创建时间" align="center" />
@@ -179,6 +180,18 @@ export default {
     }
   },
   methods: {
+    generateTestUrl(row){
+      // 获取当前程序运行的 URL
+      const baseUrl = window.location.origin
+      // 拼接完整的测试链接
+      const testUrl = `${baseUrl}/paper/doTest/${row.code}`
+      // 复制到剪贴板
+      navigator.clipboard.writeText(testUrl).then(() => {
+        Message.success('获取完成，已复制到剪贴板')
+      }).catch(() => {
+        Message.error('获取失败')
+      })
+    },
     async getList() {
       this.loading = true
       try {
@@ -196,11 +209,11 @@ export default {
       }
     },
     updateShareStatus(row) {
-      const oldStatus = row.status;
+      const oldStatus = row.status === 1 ? 0 : 1;
       try {
         const params = {
           id: row.id,
-          status: oldStatus === 1 ? 0 : 1
+          status: row.status
         }
         const res = changeShareStatus(params)
       } catch (error) {
