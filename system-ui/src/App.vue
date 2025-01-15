@@ -8,7 +8,7 @@
 export default {
   name: 'App',
   mounted() {
-    document.title = '乘风 1.0';
+    document.title = '乘风心理测试系统';
   }
 }
 </script>

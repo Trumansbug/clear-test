@@ -2,7 +2,7 @@
   <div class="login-container">
     <canvas id="waterCanvas" class="water-canvas"></canvas>
     <div class="login-box">
-      <div class="title">乘风 1.0</div>
+      <div class="title">乘风心理测试系统</div>
       <el-form
         ref="loginForm"
         :model="loginForm"

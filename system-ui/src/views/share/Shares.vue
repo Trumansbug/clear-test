@@ -14,10 +14,19 @@
 
     <div class="toolbar">
       <el-button type="primary" @click="handleAdd" v-if="hasRole('ROLE_ADMIN')">新增分享</el-button>
-      <el-button type="danger" @click="handleBatchDelete" v-if="hasRole('ROLE_ADMIN')">删除分享</el-button>
+      <el-button
+          type="danger"
+          @click="handleBatchDelete"
+          v-if="hasRole('ROLE_ADMIN')"
+          :disabled="selectedIds.length === 0">批量删除</el-button>
     </div>
 
-    <el-table ref="multipleTable" v-loading="loading" :data="shareList" style="width: 100%">
+    <el-table
+        ref="multipleTable"
+        v-loading="loading"
+        :data="shareList"
+        @selection-change="handleSelectionChange"
+        style="width: 100%">
       <el-table-column type="selection" align="center" />
       <el-table-column prop="code" label="分享码" align="center" />
       <el-table-column prop="paperTitle" label="关联试卷" align="center" />
@@ -139,6 +148,7 @@ export default {
       shareList: [],
       total: 0,
       totalPaper: 0,
+      selectedIds: [],
       queryParams: {
         current: 1,
         size: 10
@@ -234,13 +244,15 @@ export default {
     handleAdd() {
       this.addDialogVisible = true;
     },
+    handleSelectionChange(selection) {
+      this.selectedIds = selection.map(item => item.id)
+    },
     handleBatchDelete() {
       this.$confirm('确认删除所选分享码吗？', '提示', {
         type: 'warning'
       }).then(async () => {
         try {
-          const ids = this.$refs.multipleTable.selection.map(paper => paper.id)
-          await batchDeleteShare(ids)
+          await batchDeleteShare(this.selectedIds)
           Message.success('删除成功')
           await this.getList()
         } catch (error) {

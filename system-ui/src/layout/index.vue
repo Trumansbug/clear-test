@@ -4,7 +4,7 @@
     <div class="sidebar-container">
       <div class="logo">
         <!-- <img src="../assets/logo.png" alt="Logo"> -->
-        <span>乘风 1.0</span>
+        <span>乘风心理测试系统</span>
       </div>
       <el-menu
         :default-active="$route.path"
@@ -25,7 +25,7 @@
           <el-menu-item-group>
             <el-menu-item index="/paper/list">
               <i class="el-icon-document"></i>
-              <span slot="title">试卷管理</span>
+              <span slot="title">量表管理</span>
             </el-menu-item>
             <el-menu-item index="/share/list">
               <i class="el-icon-share"></i>

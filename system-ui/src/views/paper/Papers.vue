@@ -18,8 +18,7 @@
           type="danger"
           :disabled="selectedIds.length === 0"
           @click="handleBatchDelete"
-          v-if="hasRole('ROLE_ADMIN')"
-      >删除试卷</el-button>
+          v-if="hasRole('ROLE_ADMIN')">批量删除</el-button>
     </div>
 
     <el-table
@@ -158,7 +157,6 @@ export default {
     formatTime(row, column, cellValue) {
       return this.$formatTime(cellValue);
     },
-    // 多选框选中数据
     handleSelectionChange(selection) {
       this.selectedIds = selection.map(item => item.id)
     },
